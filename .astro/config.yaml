@@ -1,0 +1,6 @@
+project:
+  name: demos
+postgres:
+  port: 5433
+webserver:
+  port: 8090
