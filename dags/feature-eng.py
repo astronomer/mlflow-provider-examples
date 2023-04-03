@@ -31,7 +31,7 @@ test_sample = {
     default_view="graph",
     catchup=False
 )
-def feature_eng_workflow():
+def feature_eng():
 
     @aql.transform
     def get_data(input_table: Table): 
@@ -137,4 +137,4 @@ def feature_eng_workflow():
 
     load_features >> cleanup
 
-feature_eng_workflow = feature_eng_workflow()
+feature_eng = feature_eng()

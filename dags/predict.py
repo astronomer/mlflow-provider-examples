@@ -6,7 +6,7 @@ from mlflow_provider.operators.registry import (
 )
 
 from mlflow_provider.operators.pyfunc import (
-    AirflowPredict
+    AirflowPredictOperator
 )
 
 
@@ -29,7 +29,7 @@ QUERY_STATEMENT = """
     catchup=False,
     render_template_as_native_obj=True
 )
-def airflow_predict():
+def predict():
     """
     ### Sample DAG
 
@@ -61,11 +61,10 @@ def airflow_predict():
         stages=['Staging']
     )
 
-    prediction = AirflowPredict(
+    prediction = AirflowPredictOperator(
         task_id='prediction',
         model_uri="mlflow-artifacts:/3/{{ ti.xcom_pull(task_ids='latest_staging_model')['model_versions'][0]['run_id'] }}/artifacts/model",
-        # data="{{ ti.xcom_pull(task_ids='preprocess') }}"
-        data_string="{{ ti.xcom_pull(task_ids='preprocess', key='values') }}"
+        data="{{ ti.xcom_pull(task_ids='preprocess', key='values') }}"
     )
 
     output_table = Table(
@@ -113,4 +112,4 @@ def airflow_predict():
     cleanup = aql.cleanup()
     preprocessed >> latest_staging_model >> prediction >> classes >> load_predictions >> cleanup
 
-airflow_predict = airflow_predict()
+predict = predict()

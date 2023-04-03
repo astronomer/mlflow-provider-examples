@@ -123,7 +123,7 @@ def feature_monitoring():
 
     trigger_retrain = TriggerDagRunOperator(
         task_id="trigger_retrain",
-        trigger_dag_id="retrain_workflow"
+        trigger_dag_id="retrain"
     )
 
     cleanup = aql.cleanup()

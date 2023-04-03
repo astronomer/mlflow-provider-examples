@@ -10,7 +10,7 @@ from astro.sql.table import Table, Metadata
 from mlflow_provider.hooks.base import MLflowBaseHook
 from mlflow_provider.operators.registry import (
     CreateRegisteredModelOperator,
-    CreateModelVersionsOperator,
+    CreateModelVersionOperator,
     TransitionModelVersionStageOperator
 )
 
@@ -49,7 +49,7 @@ test_sample = {
     catchup=False,
     # render_template_as_native_obj=True
 )
-def retrain_workflow():
+def retrain():
     """
     ### Sample DAG
 
@@ -205,7 +205,7 @@ def retrain_workflow():
     )
     create_registered_model.doc_md = 'This task is just in case for a first run and to make sure there is always a registry to add model version to.'
 
-    create_model_version = CreateModelVersionsOperator(
+    create_model_version = CreateModelVersionOperator(
         task_id='create_model_version',
         name=experiment_name,
         source=f"{retrain_info['artifact_location']}/model",
@@ -248,4 +248,4 @@ def retrain_workflow():
     retrain_info >> branch_choice >> [create_registered_model, send_alert]
 
 
-retrain_workflow = retrain_workflow()
+retrain = retrain()
