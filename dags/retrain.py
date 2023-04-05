@@ -47,7 +47,7 @@ test_sample = {
     schedule_interval=None,
     default_args={
         # "retries": 2
-        'mlflow_conn_id': 'mlflow_astronomer_dev'
+        'mlflow_conn_id': 'mlflow_default'
     },
     tags=["example"],
     default_view="graph",
