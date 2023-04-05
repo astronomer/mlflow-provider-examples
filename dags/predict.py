@@ -29,7 +29,7 @@ QUERY_STATEMENT = """
     start_date=datetime(2022, 1, 1),
     schedule_interval=None,
     default_args={
-        'mlflow_conn_id': 'mlflow_astronomer_dev'
+        'mlflow_conn_id': 'mlflow_default'
     },
     tags=["example"],
     catchup=False,
