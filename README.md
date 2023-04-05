@@ -26,7 +26,7 @@ Connections and Variables
 
 **Connections:**
 - aws_default: AWS connection to access ECR and SageMaker
-- mlflow_astronomer_dev: MLflow connection information using the HTTP connection type
+- mlflow_default: MLflow connection information using the HTTP connection type
 - postgres: Postgres connection
 - slack_default: Connection info for sending alerts via Slack Operator
 
