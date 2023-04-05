@@ -8,6 +8,12 @@ DAGs:
 - predict.py: Loads a model from MLflow and performs prediction with a given set of input data.
 - generate_true_values.py: Synthetically generates feedback for target value.
 
+Generally the DAGs should be run in this order initially:
+1. feature_eng 
+2. monitor_features (this will be triggred by feature_eng automatically)
+3. predict
+4. generate_true_values
+5. retrain (this will run after monitor if needed, but on first run of dags it probably won't)
 
 Pre-Requisites
 ==============
