@@ -1,4 +1,10 @@
-import json
+"""
+### Feature Monitoring DAG to use with MLflow Provider example DAGs
+
+Uses Evidently to monitor the features in the feature store after features are added to the feature store by the feature engineering DAG.
+If drift is detected, a Slack notification is sent and a DAG is triggered to retrain the model.
+"""
+
 from pendulum import datetime
 import logging
 
@@ -21,6 +27,7 @@ import pandas as pd
     tags=["example"],
     default_view="graph",
     catchup=False,
+    doc_md=__doc__,
     render_template_as_native_obj=True
 )
 def feature_monitoring():

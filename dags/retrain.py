@@ -1,3 +1,8 @@
+"""
+### Retrain DAG that uses the MLflow provider to track and regiser models
+
+Uses the MLflow provider package's CreateRegisteredModelOperator, CreateModelVersionOperator, and TransitionModelVersionStageOperator to create a new model version in the MLflow model registry and transition it to the "Staging" stage.
+"""
 from airflow.utils.helpers import chain
 from pendulum import datetime
 
@@ -47,6 +52,7 @@ test_sample = {
     tags=["example"],
     default_view="graph",
     catchup=False,
+    doc_md=__doc__
     # render_template_as_native_obj=True
 )
 def retrain():
@@ -133,10 +139,6 @@ def retrain():
         # Setting the environment with the created experiment
         experiment = mlflow.set_experiment(experiment_name)
 
-        # prepare train and test data
-        # iris = datasets.load_iris()
-        # X = iris.data
-        # y = iris.target
         X = iris.drop('target', axis=1)
         y = iris['target']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)

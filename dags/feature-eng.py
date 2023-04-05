@@ -1,3 +1,9 @@
+"""
+### Feature Engineering Pipeline to use with MLflow provider example DAGs.
+
+Generates synthetic data and performs feature engineering.
+"""
+
 from pendulum import datetime
 import logging
 
@@ -29,7 +35,8 @@ test_sample = {
     schedule_interval=None,
     tags=["example"],
     default_view="graph",
-    catchup=False
+    catchup=False,
+    doc_md=__doc__
 )
 def feature_eng():
 

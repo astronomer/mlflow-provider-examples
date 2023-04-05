@@ -1,3 +1,9 @@
+"""
+### Generate True Values DAG to use with MLflow Provider example DAGs
+
+Artificially generates feedback on the predictions made by the model in the predict DAG.
+"""
+
 from pendulum import datetime
 import logging
 
@@ -13,7 +19,8 @@ from pandas import DataFrame
     schedule_interval=None,
     tags=["example"],
     default_view="grid",
-    catchup=False
+    catchup=False,
+    doc_md=__doc__
 )
 def generate_true_values():
 

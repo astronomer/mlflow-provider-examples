@@ -1,3 +1,9 @@
+"""
+### Predict DAG that uses the MLflow provider
+
+Uses the MLflow provider package's ModelLoadAndPredictOperator to load a model from the MLflow model registry and make predictions on new data.
+"""
+
 from airflow.decorators import dag, task
 from pendulum import datetime
 from astro import sql as aql 
@@ -6,7 +12,7 @@ from mlflow_provider.operators.registry import (
 )
 
 from mlflow_provider.operators.pyfunc import (
-    AirflowPredictOperator
+    ModelLoadAndPredict
 )
 
 
@@ -27,6 +33,7 @@ QUERY_STATEMENT = """
     },
     tags=["example"],
     catchup=False,
+    doc_md=__doc__,
     render_template_as_native_obj=True
 )
 def predict():
@@ -61,7 +68,7 @@ def predict():
         stages=['Staging']
     )
 
-    prediction = AirflowPredictOperator(
+    prediction = ModelLoadAndPredict(
         task_id='prediction',
         model_uri="mlflow-artifacts:/3/{{ ti.xcom_pull(task_ids='latest_staging_model')['model_versions'][0]['run_id'] }}/artifacts/model",
         data="{{ ti.xcom_pull(task_ids='preprocess', key='values') }}"
