@@ -1,0 +1,9 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+      "ghcr.io/astronomer/codespaces-features/astro-cli:1": {}
+  },
+  "postCreateCommand": "bash -i -c 'astro dev start -n --wait 2m'",
+  "postCreateCommand": "psql postgres://postgres:postgres@localhost:5432 -f helper_files/create_tables.sql",
+  "postCreateCommand": "psql postgres://postgres:postgres@localhost:5432 -c iris_ground_truth FROM 'helper_files/iris_ground_truth.csv' DELIMITER ',' CSV HEADER"
+}
