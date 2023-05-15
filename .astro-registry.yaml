@@ -6,8 +6,8 @@ categories:
   - ETL/ELT
 # List of DAGs that should be published to the Astronomer Registry.
 dags:
-  - path: dags/feature_eng.py
-  - path: dags/monitor_features.py
+  - path: dags/feature-eng.py
+  - path: dags/monitor-features.py
   - path: dags/retrain.py
   - path: dags/predict.py
-  - path: dags/generate_true_values.py
+  - path: dags/generate-true-values.py
