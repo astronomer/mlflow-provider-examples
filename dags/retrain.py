@@ -1,5 +1,5 @@
 """
-### Retrain DAG that uses the MLflow provider to track and regiser models
+### Track and Register Models with MLflow
 
 Uses the MLflow provider package's CreateRegisteredModelOperator, CreateModelVersionOperator, and TransitionModelVersionStageOperator to create a new model version in the MLflow model registry and transition it to the "Staging" stage.
 """
@@ -9,7 +9,7 @@ from pendulum import datetime
 from airflow.decorators import dag, task
 from airflow.utils.edgemodifier import Label
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
-from astro import sql as aql 
+from astro import sql as aql
 from astro.sql.table import Table, Metadata
 
 from mlflow_provider.hooks.base import MLflowBaseHook
@@ -44,16 +44,12 @@ test_sample = {
 
 @dag(
     start_date=datetime(2022, 1, 1),
-    schedule_interval=None,
-    default_args={
-        # "retries": 2
-        'mlflow_conn_id': 'mlflow_default'
-    },
+    schedule=None,
+    default_args={'mlflow_conn_id': 'mlflow_default'},
     tags=["example"],
     default_view="graph",
     catchup=False,
     doc_md=__doc__
-    # render_template_as_native_obj=True
 )
 def retrain():
     """
@@ -93,10 +89,10 @@ def retrain():
         ),
         conn_id="postgres",
     )
-    
+
     @aql.transform
-    def get_data(truth_table: Table, new_features_table: Table, original_table: Table): 
-        return """ 
+    def get_data(truth_table: Table, new_features_table: Table, original_table: Table):
+        return """
             SELECT
                 sepal_length_cm,
                 sepal_width_cm,
@@ -106,7 +102,7 @@ def retrain():
             FROM {{new_features_table}}
             JOIN {{truth_table}}
             ON {{new_features_table}}.feature_id={{truth_table}}.feature_id
-            UNION 
+            UNION
             SELECT
                 sepal_length_cm,
                 sepal_width_cm,
@@ -118,11 +114,9 @@ def retrain():
 
     @aql.dataframe(columns_names_capitalization='original')
     def retrain(iris: DataFrame) -> dict[str, str]:
-        from sklearn import datasets
         from sklearn.model_selection import train_test_split
         from sklearn.metrics import accuracy_score, log_loss
         import lightgbm as lgb
-        import matplotlib as mpl
 
         import mlflow
         import mlflow.lightgbm
@@ -135,7 +129,7 @@ def retrain():
             mlflow.create_experiment(experiment_name)
         except:
             pass
-        
+
         # Setting the environment with the created experiment
         experiment = mlflow.set_experiment(experiment_name)
 
@@ -153,12 +147,9 @@ def retrain():
             params = {
                 "objective": "multiclass",
                 "num_class": 3,
-                # "learning_rate": args.learning_rate,
                 "learning_rate": 0.1,
                 "metric": "multi_logloss",
-                # "colsample_bytree": args.colsample_bytree,
                 "colsample_bytree": 1.0,
-                # "subsample": args.subsample,
                 "subsample": 1.0,
                 "seed": 42,
             }
@@ -197,7 +188,6 @@ def retrain():
         return ['send_alert']
 
     branch_choice = choose_branch(result="{{ ti.xcom_pull(task_ids='retrain')['metrics']['accuracy'] }}")
-    # branch_choice = choose_branch("0.8")
 
     create_registered_model = CreateRegisteredModelOperator(
         task_id='create_registered_model',

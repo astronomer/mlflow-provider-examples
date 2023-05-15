@@ -1,20 +1,14 @@
 """
-### Predict DAG that uses the MLflow provider
+### Model Prediction with MLflow
 
 Uses the MLflow provider package's ModelLoadAndPredictOperator to load a model from the MLflow model registry and make predictions on new data.
 """
 
 from airflow.decorators import dag, task
 from pendulum import datetime
-from astro import sql as aql 
-from mlflow_provider.operators.registry import (
-    GetLatestModelVersionsOperator,
-)
-
-from mlflow_provider.operators.pyfunc import (
-    ModelLoadAndPredict
-)
-
+from astro import sql as aql
+from mlflow_provider.operators.registry import GetLatestModelVersionsOperator
+from mlflow_provider.operators.pyfunc import ModelLoadAndPredictOperator
 
 from astro.sql.table import Table, Metadata
 
@@ -27,7 +21,7 @@ QUERY_STATEMENT = """
 
 @dag(
     start_date=datetime(2022, 1, 1),
-    schedule_interval=None,
+    schedule=None,
     default_args={
         'mlflow_conn_id': 'mlflow_default'
     },
@@ -68,7 +62,7 @@ def predict():
         stages=['Staging']
     )
 
-    prediction = ModelLoadAndPredict(
+    prediction = ModelLoadAndPredictOperator(
         task_id='prediction',
         model_uri="mlflow-artifacts:/3/{{ ti.xcom_pull(task_ids='latest_staging_model')['model_versions'][0]['run_id'] }}/artifacts/model",
         data="{{ ti.xcom_pull(task_ids='preprocess', key='values') }}"
@@ -87,13 +81,13 @@ def predict():
         for result in results:
             max_index = result.index(max(result))
             final_prediction.append(max_index)
-        
+
         df = DataFrame(data=ids, columns=['feature_id'])
         df['prediction'] = final_prediction
         return df
 
     classes = post_process(
-        results=prediction.output, 
+        results=prediction.output,
         ids="{{ ti.xcom_pull(task_ids='preprocess', key='ids') }}",
         output_table=output_table
     )

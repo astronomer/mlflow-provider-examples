@@ -1,22 +1,20 @@
 """
-### Generate True Values DAG to use with MLflow Provider example DAGs
+### Generate True Values with MLflow
 
 Artificially generates feedback on the predictions made by the model in the predict DAG.
 """
 
 from pendulum import datetime
-import logging
 
 from airflow.decorators import dag
-from astro import sql as aql 
+from astro import sql as aql
 from astro.sql.table import Table, Metadata
-from airflow import Dataset
 
 from pandas import DataFrame
 
 @dag(
     start_date=datetime(2022, 1, 1),
-    schedule_interval=None,
+    schedule=None,
     tags=["example"],
     default_view="grid",
     catchup=False,
@@ -25,18 +23,18 @@ from pandas import DataFrame
 def generate_true_values():
 
     @aql.transform
-    def get_data(input_table: Table): 
-        return """ 
-            SELECT 
+    def get_data(input_table: Table):
+        return """
+            SELECT
                 feature_id,
                 prediction
             FROM {{input_table}}
         """
-    
+
     @aql.dataframe(columns_names_capitalization="lower")
     def generate_true_values(predictions: DataFrame):
         import random
-        
+
         predicted_values = predictions['prediction'].to_list()
 
         feedback=[]

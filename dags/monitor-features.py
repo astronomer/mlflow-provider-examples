@@ -1,5 +1,5 @@
 """
-### Feature Monitoring DAG to use with MLflow Provider example DAGs
+### Feature Monitoring with MLflow
 
 Uses Evidently to monitor the features in the feature store after features are added to the feature store by the feature engineering DAG.
 If drift is detected, a Slack notification is sent and a DAG is triggered to retrain the model.
@@ -9,7 +9,7 @@ from pendulum import datetime
 import logging
 
 from airflow.decorators import dag, task
-from astro import sql as aql 
+from astro import sql as aql
 from astro.sql.table import Table, Metadata
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 from airflow import Dataset
@@ -17,12 +17,11 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.models.baseoperator import chain
 
 
-import pandas as pd 
+import pandas as pd
 
 
 @dag(
     start_date=datetime(2022, 1, 1),
-    schedule_interval=None,
     schedule=[Dataset("astro://postgres@?table=new_features&schema=public&database=feature_store")],
     tags=["example"],
     default_view="graph",
@@ -33,17 +32,17 @@ import pandas as pd
 def feature_monitoring():
 
     @aql.transform
-    def get_ref_data(input_table: Table): 
+    def get_ref_data(input_table: Table):
         return """
-        SELECT sepal_length_cm, sepal_width_cm, petal_length_cm, petal_width_cm 
+        SELECT sepal_length_cm, sepal_width_cm, petal_length_cm, petal_width_cm
         FROM {{input_table}}
         """
-        
-    
+
+
     @aql.transform
     def get_curr_data(input_table: Table):
         return """
-        SELECT sepal_length_cm, sepal_width_cm, petal_length_cm, petal_width_cm 
+        SELECT sepal_length_cm, sepal_width_cm, petal_length_cm, petal_width_cm
         FROM {{input_table}}
         """
 
@@ -51,13 +50,8 @@ def feature_monitoring():
     @aql.dataframe(columns_names_capitalization="lower")
     def generate_reports(
         ref_data: pd.DataFrame,
-        curr_data: pd.DataFrame 
+        curr_data: pd.DataFrame
     ):
-
-        from evidently.metric_preset import DataDriftPreset
-        from evidently.pipeline.column_mapping import ColumnMapping
-        from evidently.report import Report
-
         from evidently.test_suite import TestSuite
         from evidently.test_preset import (
                 # NoTargetPerformanceTestPreset,
@@ -71,7 +65,7 @@ def feature_monitoring():
             # DataStabilityTestPreset()
         ])
         suite.run(reference_data=ref_data, current_data=curr_data)
-        
+
         return suite.as_dict()
 
     ref_table = Table(
@@ -104,7 +98,7 @@ def feature_monitoring():
         slack_conn_id='slack_default',
         task_id="send_alert",
         text="""
-        *Evidently Test Suite results:* 
+        *Evidently Test Suite results:*
         ```{report}```
         """.format(report="{{ ti.xcom_pull(task_ids='generate_reports') }}"),
         channel="#integrations"
