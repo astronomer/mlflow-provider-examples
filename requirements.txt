@@ -2,4 +2,4 @@ lightgbm==3.2.1
 apache-airflow-providers-slack==7.2.0
 astro-sdk-python[postgres]==1.5.2
 evidently==0.2.5
-airflow-provider-mlflow==1.0.0
+airflow-provider-mlflow==1.1.0
